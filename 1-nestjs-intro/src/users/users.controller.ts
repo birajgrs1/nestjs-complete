@@ -1,9 +1,49 @@
 import { Controller, Get } from '@nestjs/common';
+import { UsersService } from './users.service';
 @Controller('users')
 export class UsersController {
+  constructor(private usersService: UsersService) {}
+
+  // Get All Users
   @Get()
-  getHello(): string {
-    return 'Hello User!';
+  getAllUsers() {
+    return this.usersService.getAllUsers();
+  }
+
+  // Get User By Id
+  @Get(':id')
+  getUserById(id: number) {
+    return this.usersService.getUserById(id);
+  }
+
+  // Create New User
+  @Get('create')
+  createNewUser(user: {
+    id: number;
+    name: string;
+    age: number;
+    profession: string;
+    isMarried: boolean;
+  }) {
+    return this.usersService.createNewUser(user);
+  }
+
+  // Update User
+  @Get('update')
+  updateUser(user: {
+    id: number;
+    name: string;
+    age: number;
+    profession: string;
+    isMarried: boolean;
+  }) {
+    return this.usersService.updateUser(user);
+  }
+
+  // Delete User
+  @Get('delete')
+  deleteUser(id: number) {
+    return this.usersService.deleteUser(id);
   }
 }
 
