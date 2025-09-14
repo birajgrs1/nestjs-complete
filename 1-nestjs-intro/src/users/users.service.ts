@@ -6,23 +6,47 @@ export class UsersService {
     id: number;
     name: string;
     age: number;
+    gender: string;
     profession: string;
     isMarried: boolean;
   }[] = [
-    { id: 1, name: 'Ram', age: 30, profession: 'Developer', isMarried: true },
+    {
+      id: 1,
+      name: 'Ram',
+      age: 30,
+      gender: 'male',
+      profession: 'Developer',
+      isMarried: true,
+    },
     {
       id: 2,
       name: 'Shyam',
       age: 25,
+      gender: 'male',
       profession: 'Business Analyst',
       isMarried: false,
     },
-    { id: 3, name: 'Hari', age: 20, profession: 'Designer', isMarried: false },
-    { id: 4, name: 'Sita', age: 22, profession: 'HR', isMarried: true },
+    {
+      id: 3,
+      name: 'Hari',
+      age: 20,
+      gender: 'male',
+      profession: 'Designer',
+      isMarried: false,
+    },
+    {
+      id: 4,
+      name: 'Sita',
+      age: 22,
+      gender: 'female',
+      profession: 'HR',
+      isMarried: true,
+    },
     {
       id: 5,
       name: 'Gita',
       age: 27,
+      gender: 'female',
       profession: 'Accountant',
       isMarried: true,
     },
@@ -30,6 +54,7 @@ export class UsersService {
       id: 6,
       name: 'Laxman',
       age: 32,
+      gender: 'male',
       profession: 'Developer',
       isMarried: true,
     },
@@ -57,6 +82,11 @@ export class UsersService {
     });
   }
 
+  // Add this missing method
+  getUsersByMarriedStatus(isMarried: boolean) {
+    return this.users.filter((user) => user.isMarried === isMarried);
+  }
+
   getUserById(id: number) {
     return this.users.find((user) => user.id === id);
   }
@@ -71,6 +101,7 @@ export class UsersService {
     id: number;
     name: string;
     age: number;
+    gender: string;
     profession: string;
     isMarried: boolean;
   }) {
@@ -81,11 +112,14 @@ export class UsersService {
     id: number;
     name: string;
     age: number;
+    gender: string;
     profession: string;
     isMarried: boolean;
   }) {
     const index = this.users.findIndex((u) => u.id === user.id);
-    this.users[index] = user;
+    if (index !== -1) {
+      this.users[index] = user;
+    }
   }
 
   deleteUser(id: number) {

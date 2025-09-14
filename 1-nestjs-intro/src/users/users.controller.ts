@@ -9,8 +9,12 @@ import {
   Query,
   ParseIntPipe,
   DefaultValuePipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import { GetUsersByStatusDto } from './dtos/get-users-by-status.dto';
 
 @Controller('users')
 export class UsersController {
@@ -40,6 +44,15 @@ export class UsersController {
     return this.usersService.getAllUsers();
   }
 
+  // Using DTO with Route Parameter
+  @Get('status/:isMarried')
+  getUsersByMarriedStatus(
+    @Param(new ValidationPipe({ transform: true }))
+    params: GetUsersByStatusDto,
+  ) {
+    return this.usersService.getUsersByMarriedStatus(params.isMarried);
+  }
+
   // Get User By Id
   @Get(':id')
   getUserById(@Param('id', ParseIntPipe) id: number) {
@@ -60,31 +73,47 @@ export class UsersController {
   }
 
   // Create New User
-  @Post('create')
+  // @Post('create')
+  // createNewUser(
+  //   @Body()
+  //   user: {
+  //     id: number;
+  //     name: string;
+  //     age: number;
+  //     gender: string;
+  //     profession: string;
+  //     isMarried: boolean;
+  //   },
+  // ) {
+  //   return this.usersService.createNewUser(user);
+  // }
+
+  @Post()
   createNewUser(
-    @Body()
-    user: {
-      id: number;
-      name: string;
-      age: number;
-      profession: string;
-      isMarried: boolean;
-    },
+    @Body(new ValidationPipe({ transform: true })) user: CreateUserDto,
   ) {
     return this.usersService.createNewUser(user);
   }
 
   // Update User
+  // @Put('update')
+  // updateUser(
+  //   @Body()
+  //   user: {
+  //     id: number;
+  //     name: string;
+  //     age: number;
+  //     gender: string;
+  //     profession: string;
+  //     isMarried: boolean;
+  //   },
+  // ) {
+  //   return this.usersService.updateUser(user);
+  // }
+
   @Put('update')
   updateUser(
-    @Body()
-    user: {
-      id: number;
-      name: string;
-      age: number;
-      profession: string;
-      isMarried: boolean;
-    },
+    @Body(new ValidationPipe({ transform: true })) user: UpdateUserDto,
   ) {
     return this.usersService.updateUser(user);
   }
