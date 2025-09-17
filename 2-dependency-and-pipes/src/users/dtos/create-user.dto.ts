@@ -39,4 +39,13 @@ export class CreateUserDto {
   @Type(() => Boolean)
   @IsBoolean()
   isMarried: boolean;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  email: string;
 }

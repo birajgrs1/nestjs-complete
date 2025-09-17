@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UsersService {
+  constructor(private readonly authService: AuthService) {}
   users: {
     id: number;
     name: string;
@@ -9,6 +11,8 @@ export class UsersService {
     gender: string;
     profession: string;
     isMarried: boolean;
+    email?: string;
+    password?: string;
   }[] = [
     {
       id: 1,
@@ -16,6 +20,8 @@ export class UsersService {
       age: 30,
       gender: 'male',
       profession: 'Developer',
+      email: 'ram@gmail.com',
+      password: 'password123',
       isMarried: true,
     },
     {
@@ -24,6 +30,8 @@ export class UsersService {
       age: 25,
       gender: 'male',
       profession: 'Business Analyst',
+      email: 'shyam@gmail.com',
+      password: 'password123',
       isMarried: false,
     },
     {
@@ -32,6 +40,8 @@ export class UsersService {
       age: 20,
       gender: 'male',
       profession: 'Designer',
+      email: 'hari@gmail.com',
+      password: 'password123',
       isMarried: false,
     },
     {
@@ -40,6 +50,8 @@ export class UsersService {
       age: 22,
       gender: 'female',
       profession: 'HR',
+      email: 'sita@gmail.com',
+      password: 'password123',
       isMarried: true,
     },
     {
@@ -48,6 +60,8 @@ export class UsersService {
       age: 27,
       gender: 'female',
       profession: 'Accountant',
+      email: 'gita@gmail.com',
+      password: 'password123',
       isMarried: true,
     },
     {
@@ -56,11 +70,25 @@ export class UsersService {
       age: 32,
       gender: 'male',
       profession: 'Developer',
+      email: 'laxman@gmail.com',
+      password: 'password123',
       isMarried: true,
     },
   ];
 
+  // getAllUsers() {
+  //   if (this.authService.isAuthenticated) {
+  //     return this.users;
+  //   } else {
+  //     return { message: 'User not authenticated' };
+  //   }
+  // }
+
   getAllUsers(query?: { age?: string; isMarried?: string }) {
+    if (!this.authService.isAuthenticated) {
+      return { message: 'User not authenticated' };
+    }
+
     if (!query || Object.keys(query).length === 0) {
       return this.users;
     }
@@ -82,7 +110,6 @@ export class UsersService {
     });
   }
 
-  // Add this missing method
   getUsersByMarriedStatus(isMarried: boolean) {
     return this.users.filter((user) => user.isMarried === isMarried);
   }
@@ -104,6 +131,8 @@ export class UsersService {
     gender: string;
     profession: string;
     isMarried: boolean;
+    email: string;
+    password: string;
   }) {
     this.users.push(user);
   }
@@ -115,6 +144,8 @@ export class UsersService {
     gender: string;
     profession: string;
     isMarried: boolean;
+    email: string;
+    password: string;
   }) {
     const index = this.users.findIndex((u) => u.id === user.id);
     if (index !== -1) {

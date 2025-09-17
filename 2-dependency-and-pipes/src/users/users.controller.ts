@@ -41,7 +41,7 @@ export class UsersController {
   ) {
     console.log(limit);
     console.log(page);
-    return this.usersService.getAllUsers();
+    return this.usersService.getAllUsers(); // this still returns all users; pagination logic can be added in service
   }
 
   // Using DTO with Route Parameter
