@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { TweetsModule } from './tweets/tweets.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './users/users.entity';
 
 @Module({
   imports: [
@@ -26,8 +27,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     // }),
 
     // Asynchronous configuration
+
     TypeOrmModule.forRootAsync({
-      // imports dependency
       imports: [],
       inject: [],
       useFactory: () => ({
@@ -39,7 +40,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         database: 'nestjs',
         autoLoadEntities: true,
         synchronize: true,
-        entities: [],
+        entities: [User],
       }),
     }),
   ],
