@@ -1,21 +1,57 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+
 @Entity()
 export class User {
   // @Column({ type: 'int', primary: true })
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+  })
   name: string;
-  @Column()
+
+  @Column({
+    type: 'int',
+    nullable: false,
+  })
   age: number;
-  @Column({ nullable: true })
+
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+  })
   gender?: string;
-  @Column({ nullable: true })
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
   profession: string;
-  @Column()
+
+  @Column({
+    type: 'varchar',
+    length: 150,
+    unique: true,
+    nullable: false,
+  })
   email: string;
-  @Column()
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+  })
   password: string;
-  @Column({ default: false })
+
+  @Column({
+    type: 'boolean',
+    default: false,
+    nullable: true,
+  })
   isMarried?: boolean;
 }
