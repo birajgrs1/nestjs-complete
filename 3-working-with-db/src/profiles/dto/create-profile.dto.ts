@@ -21,14 +21,14 @@ export class CreateProfileDto {
   @IsNotEmpty()
   @MaxLength(100)
   @MinLength(3, { message: 'Name must be at least 3 characters long' })
-  firstName: string;
+  firstName?: string;
 
   @IsString()
   @IsOptional()
   @IsNotEmpty()
   @MaxLength(100)
   @MinLength(3, { message: 'Name must be at least 3 characters long' })
-  lastName: string;
+  lastName?: string;
 
   @IsOptional()
   @IsEnum(Gender)
@@ -41,9 +41,9 @@ export class CreateProfileDto {
 
   @IsOptional()
   @IsString()
-  bio: string;
+  bio?: string;
 
   @IsOptional()
   @IsString()
-  profileImage: string;
+  profileImage?: string;
 }
