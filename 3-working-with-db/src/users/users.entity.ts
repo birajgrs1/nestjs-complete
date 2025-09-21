@@ -5,7 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Profile } from '../profiles/profile.entity';
 
 @Entity()
 export class User {
@@ -72,6 +75,10 @@ export class User {
   //   nullable: true,
   // })
   // isMarried?: boolean;
+
+  @OneToOne(() => Profile)
+  @JoinColumn()
+  profile?: Profile;
 
   @CreateDateColumn()
   createdAt: Date;

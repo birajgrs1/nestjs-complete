@@ -7,9 +7,10 @@ import {
   Max,
   Min,
   MinLength,
+  IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-
+import { CreateProfileDto } from '../../profiles/dto/create-profile.dto';
 export class CreateUserDto {
   @Type(() => Number)
   @IsNumber()
@@ -48,4 +49,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
+
+  @IsOptional()
+  profile?: CreateProfileDto | null;
 }
