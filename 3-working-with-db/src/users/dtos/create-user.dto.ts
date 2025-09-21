@@ -1,7 +1,7 @@
 import {
-  IsBoolean,
+  // IsBoolean,
   IsNumber,
-  IsOptional,
+  // IsOptional,
   IsString,
   IsNotEmpty,
   Max,
@@ -20,32 +20,32 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(3, { message: 'Name must be at least 3 characters long' })
-  name: string;
+  username: string;
 
-  @Type(() => Number)
-  @IsNumber()
-  @Min(17)
-  @Max(100)
-  age: number;
+  // @Type(() => Number)
+  // @IsNumber()
+  // @Min(17)
+  // @Max(100)
+  // age: number;
+
+  // @IsString()
+  // @IsOptional()
+  // gender: string;
+
+  // @IsString()
+  // @IsOptional()
+  // profession: string;
+
+  // @Type(() => Boolean)
+  // @IsBoolean()
+  // isMarried: boolean;
 
   @IsString()
-  @IsOptional()
-  gender: string;
-
-  @IsString()
-  @IsOptional()
-  profession: string;
-
-  @Type(() => Boolean)
-  @IsBoolean()
-  isMarried: boolean;
+  @IsNotEmpty()
+  email: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
-
-  @IsString()
-  @IsNotEmpty()
-  email: string;
 }
