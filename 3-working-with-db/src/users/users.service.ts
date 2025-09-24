@@ -41,18 +41,22 @@ export class UsersService {
 
   public async createUser(userDto: CreateUserDto): Promise<User> {
     // Create a profile and save
-    let profile = this.profileRepository.create(
-      userDto.profile as DeepPartial<Profile>,
-    );
-    profile = await this.profileRepository.save(profile);
+    // let profile = this.profileRepository.create(
+    //   userDto.profile as DeepPartial<Profile>,
+    // );
+    // profile = await this.profileRepository.save(profile);
 
     // Create a user object
-    const user = this.userRepository.create(userDto as DeepPartial<User>);
+    // const user = this.userRepository.create(userDto as DeepPartial<User>);
 
     // Set the profile
-    user.profile = profile;
+    // user.profile = profile;
 
     // Save the user object and return the full user with the profile populated
+    // return await this.userRepository.save(user);
+
+    // Using cascaded (no need manually)
+    const user = this.userRepository.create(userDto as DeepPartial<User>);
     return await this.userRepository.save(user);
   }
 }

@@ -76,7 +76,10 @@ export class User {
   // })
   // isMarried?: boolean;
 
-  @OneToOne(() => Profile)
+  @OneToOne(() => Profile, {
+    // cascade: true,  // ['insert', 'update']
+    cascade: ['insert'], //cascading to insert operation
+  })
   @JoinColumn()
   profile?: Profile;
 
