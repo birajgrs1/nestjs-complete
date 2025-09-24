@@ -79,6 +79,7 @@ export class User {
   @OneToOne(() => Profile, {
     // cascade: true,  // ['insert', 'update']
     cascade: ['insert'], //cascading to insert operation
+    eager: true, //eager loading
   })
   @JoinColumn()
   profile?: Profile;

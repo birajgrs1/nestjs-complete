@@ -17,7 +17,15 @@ export class UsersService {
 
   // Get all users
   async getAllUsers(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userRepository
+      .find
+      //   {
+      //   relations: {
+      //     //apply eager loading
+      //     profile: true,
+      //   },
+      // }
+      ();
   }
 
   // Find a user by email
