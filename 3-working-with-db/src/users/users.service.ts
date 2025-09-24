@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository, DeepPartial } from 'typeorm';
 import { User } from './users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,15 +17,12 @@ export class UsersService {
 
   // Get all users
   async getAllUsers(): Promise<User[]> {
-    return this.userRepository
-      .find
-      //   {
-      //   relations: {
-      //     //apply eager loading
-      //     profile: true,
-      //   },
-      // }
-      ();
+    return this.userRepository.find({
+      relations: {
+        //apply eager loading
+        profile: true,
+      },
+    });
   }
 
   // Find a user by email
@@ -67,5 +64,29 @@ export class UsersService {
     userDto.profile = userDto.profile ?? {};
     const user = this.userRepository.create(userDto as DeepPartial<User>);
     return await this.userRepository.save(user);
+  }
+
+  // delete a user
+  public async deleteUser(id: number): Promise<{ message: string }> {
+    // find the user with given id
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['profile'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    //delete the user
+    await this.userRepository.delete(id);
+
+    //delete  profile
+    if (user.profile && user.profile.id) {
+      await this.profileRepository.delete(user.profile.id);
+    }
+
+    //send a response
+    return { message: `User with id ${id} and their profile were deleted.` };
   }
 }
