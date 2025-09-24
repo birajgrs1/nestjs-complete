@@ -56,6 +56,7 @@ export class UsersService {
     // return await this.userRepository.save(user);
 
     // Using cascaded (no need manually)
+    userDto.profile = userDto.profile ?? {};
     const user = this.userRepository.create(userDto as DeepPartial<User>);
     return await this.userRepository.save(user);
   }
