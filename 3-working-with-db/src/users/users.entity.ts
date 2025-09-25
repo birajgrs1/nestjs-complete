@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   OneToOne,
-  JoinColumn,
+  // JoinColumn,
 } from 'typeorm';
 import { Profile } from '../profiles/profile.entity';
 
@@ -81,7 +81,7 @@ export class User {
     cascade: ['insert'], //cascading to insert operation
     eager: true, //eager loading
   })
-  @JoinColumn()
+  // @JoinColumn()
   profile?: Profile;
 
   @CreateDateColumn()

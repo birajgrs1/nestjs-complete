@@ -2,7 +2,7 @@ import { User } from 'src/users/users.entity';
 import {
   Column,
   Entity,
-  // JoinColumn,
+  JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -51,7 +51,10 @@ export class Profile {
   })
   profileImage: string;
 
-  @OneToOne(() => User, (user) => user.profile)
-  // @JoinColumn()
+  @OneToOne(() => User, (user) => user.profile, {
+    // cascade: true,  // ['insert', 'update', 'remove']
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
   user: User;
 }
