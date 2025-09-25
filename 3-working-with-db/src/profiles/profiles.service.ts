@@ -11,6 +11,11 @@ export class ProfilesService {
   ) {}
 
   async getAllProfiles(): Promise<Profile[]> {
-    return this.profileRepository.find();
+    return this.profileRepository.find({
+      relations: {
+        //apply eager loading
+        user: true,
+      },
+    });
   }
 }

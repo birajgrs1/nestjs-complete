@@ -76,7 +76,7 @@ export class User {
   // })
   // isMarried?: boolean;
 
-  @OneToOne(() => Profile, {
+  @OneToOne(() => Profile, (profile) => profile.user, {
     // cascade: true,  // ['insert', 'update']
     cascade: ['insert'], //cascading to insert operation
     eager: true, //eager loading
