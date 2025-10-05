@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { Tweet } from './tweet.entity';
 import { createTweetDto } from './dtos/create-tweet.dto';
-// import { User } from 'src/users/users.entity';
+import { HashtagService } from 'src/hashtag/hashtag.service';
 
 @Injectable()
 export class TweetsService {
@@ -14,81 +14,42 @@ export class TweetsService {
     private readonly userService: UsersService,
     @InjectRepository(Tweet)
     private readonly tweetRepository: Repository<Tweet>,
+    private readonly hashtagService: HashtagService,
   ) {}
 
-  // private readonly tweets = [
-  //   { id: 1, text: 'Hello World', date: new Date(), userId: 1 },
-  //   { id: 2, text: 'My second tweet', date: new Date(), userId: 2 },
-  //   { id: 3, text: 'NestJS is awesome', date: new Date(), userId: 3 },
-  //   {
-  //     id: 4,
-  //     text: 'Dependency Injection is powerful',
-  //     date: new Date(),
-  //     userId: 4,
-  //   },
-  //   { id: 5, text: 'I love programming', date: new Date(), userId: 5 },
-  //   { id: 6, text: 'TypeScript is great', date: new Date(), userId: 6 },
-  // ];
-
-  // async getTweets(userId?: number) {
-  //   const users: User[] = await this.userService.getAllUsers();
-
-  //   if (!Array.isArray(users)) {
-  //     return { message: 'User not authenticated' };
-  //   }
-
-  //   if (userId) {
-  //     return this.tweets
-  //       .filter((tweet) => tweet.userId === userId)
-  //       .map((tweet) => {
-  //         const user = users.find((u) => u.id === tweet.userId);
-  //         if (!user) {
-  //           this.logger.warn(
-  //             `User with ID ${tweet.userId} not found for tweet ${tweet.id}`,
-  //           );
-  //           return { ...tweet, user: null };
-  //         }
-  //         this.logger.log(`Tweet ${tweet.id} found for user ${user.id}`);
-  //         return { ...tweet, user };
-  //       });
-  //   }
-
-  //   return this.tweets.map((tweet) => {
-  //     const user = users.find((u) => u.id === tweet.userId);
-  //     if (!user) {
-  //       this.logger.warn(
-  //         `User with ID ${tweet.userId} not found for tweet ${tweet.id}`,
-  //       );
-  //       return { ...tweet, user: null };
-  //     }
-  //     this.logger.log(`Tweet ${tweet.id} found for user ${user.id}`);
-  //     return { ...tweet, user };
-  //   });
-  // }
-
+  // Get all tweets for a specific user
   public async getTweets(userId: number) {
     const tweets = await this.tweetRepository.find({
       where: { user: { id: userId } },
-      //eager loading
-      relations: { user: true },
+      relations: { user: true, hashtags: true }, // Eager loading of user and hashtags
     });
     return tweets;
   }
+
+  // Create a new tweet
   public async CreateTweet(createTweetDto: createTweetDto) {
-    // Find user with given userId from user table
     const user = await this.userService.findUserById(createTweetDto.userId);
     if (!user) {
       this.logger.error(`User with ID ${createTweetDto.userId} not found.`);
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
-    // create a tweet
+    const hashtags = await this.hashtagService.findHashtags(
+      createTweetDto.hashtags || [],
+    );
+    if (!Array.isArray(hashtags) || hashtags.length === 0) {
+      this.logger.error(
+        `Hashtags with IDs ${createTweetDto.hashtags?.join(', ') ?? 'none'} not found.`,
+      );
+      throw new NotFoundException('Hashtags not found');
+    }
+
     const tweet = this.tweetRepository.create({
       ...createTweetDto,
       user: user,
+      hashtags: hashtags,
     });
 
-    // save the tweet
     this.logger.log(`Creating tweet for user ${createTweetDto.userId}`);
     return await this.tweetRepository.save(tweet);
   }
