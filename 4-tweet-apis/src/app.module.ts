@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 // import { User } from './users/users.entity';
 import { ProfilesModule } from './profiles/profiles.module';
+import { HashtagModule } from './hashtag/hashtag.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ProfilesModule } from './profiles/profiles.module';
       }),
     }),
     ProfilesModule,
+    HashtagModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService],
