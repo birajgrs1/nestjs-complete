@@ -1,5 +1,6 @@
 import {
   Injectable,
+  NotFoundException,
   // , NotFoundException
 } from '@nestjs/common';
 import { Repository, DeepPartial } from 'typeorm';
@@ -92,5 +93,20 @@ export class UsersService {
     //send a response
     return { deleted: true };
     // return { message: `User with id ${id} and their profile were deleted.` };
+  }
+
+  // Get user by id
+  async findUserById(id: number): Promise<User> {
+    const user = await this.userRepository.findOneBy({
+      id,
+      // relations: {
+      //   //apply eager loading
+      //   profile: true,
+      // },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return user;
   }
 }
