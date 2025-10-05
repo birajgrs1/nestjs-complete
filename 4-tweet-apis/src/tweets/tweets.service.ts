@@ -4,7 +4,7 @@ import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { Tweet } from './tweet.entity';
 import { createTweetDto } from './dtos/create-tweet.dto';
-import { User } from 'src/users/users.entity';
+// import { User } from 'src/users/users.entity';
 
 @Injectable()
 export class TweetsService {
@@ -16,56 +16,64 @@ export class TweetsService {
     private readonly tweetRepository: Repository<Tweet>,
   ) {}
 
-  private readonly tweets = [
-    { id: 1, text: 'Hello World', date: new Date(), userId: 1 },
-    { id: 2, text: 'My second tweet', date: new Date(), userId: 2 },
-    { id: 3, text: 'NestJS is awesome', date: new Date(), userId: 3 },
-    {
-      id: 4,
-      text: 'Dependency Injection is powerful',
-      date: new Date(),
-      userId: 4,
-    },
-    { id: 5, text: 'I love programming', date: new Date(), userId: 5 },
-    { id: 6, text: 'TypeScript is great', date: new Date(), userId: 6 },
-  ];
+  // private readonly tweets = [
+  //   { id: 1, text: 'Hello World', date: new Date(), userId: 1 },
+  //   { id: 2, text: 'My second tweet', date: new Date(), userId: 2 },
+  //   { id: 3, text: 'NestJS is awesome', date: new Date(), userId: 3 },
+  //   {
+  //     id: 4,
+  //     text: 'Dependency Injection is powerful',
+  //     date: new Date(),
+  //     userId: 4,
+  //   },
+  //   { id: 5, text: 'I love programming', date: new Date(), userId: 5 },
+  //   { id: 6, text: 'TypeScript is great', date: new Date(), userId: 6 },
+  // ];
 
-  async getTweets(userId?: number) {
-    const users: User[] = await this.userService.getAllUsers();
+  // async getTweets(userId?: number) {
+  //   const users: User[] = await this.userService.getAllUsers();
 
-    if (!Array.isArray(users)) {
-      return { message: 'User not authenticated' };
-    }
+  //   if (!Array.isArray(users)) {
+  //     return { message: 'User not authenticated' };
+  //   }
 
-    if (userId) {
-      return this.tweets
-        .filter((tweet) => tweet.userId === userId)
-        .map((tweet) => {
-          const user = users.find((u) => u.id === tweet.userId);
-          if (!user) {
-            this.logger.warn(
-              `User with ID ${tweet.userId} not found for tweet ${tweet.id}`,
-            );
-            return { ...tweet, user: null };
-          }
-          this.logger.log(`Tweet ${tweet.id} found for user ${user.id}`);
-          return { ...tweet, user };
-        });
-    }
+  //   if (userId) {
+  //     return this.tweets
+  //       .filter((tweet) => tweet.userId === userId)
+  //       .map((tweet) => {
+  //         const user = users.find((u) => u.id === tweet.userId);
+  //         if (!user) {
+  //           this.logger.warn(
+  //             `User with ID ${tweet.userId} not found for tweet ${tweet.id}`,
+  //           );
+  //           return { ...tweet, user: null };
+  //         }
+  //         this.logger.log(`Tweet ${tweet.id} found for user ${user.id}`);
+  //         return { ...tweet, user };
+  //       });
+  //   }
 
-    return this.tweets.map((tweet) => {
-      const user = users.find((u) => u.id === tweet.userId);
-      if (!user) {
-        this.logger.warn(
-          `User with ID ${tweet.userId} not found for tweet ${tweet.id}`,
-        );
-        return { ...tweet, user: null };
-      }
-      this.logger.log(`Tweet ${tweet.id} found for user ${user.id}`);
-      return { ...tweet, user };
+  //   return this.tweets.map((tweet) => {
+  //     const user = users.find((u) => u.id === tweet.userId);
+  //     if (!user) {
+  //       this.logger.warn(
+  //         `User with ID ${tweet.userId} not found for tweet ${tweet.id}`,
+  //       );
+  //       return { ...tweet, user: null };
+  //     }
+  //     this.logger.log(`Tweet ${tweet.id} found for user ${user.id}`);
+  //     return { ...tweet, user };
+  //   });
+  // }
+
+  public async getTweets(userId: number) {
+    const tweets = await this.tweetRepository.find({
+      where: { user: { id: userId } },
+      //eager loading
+      relations: { user: true },
     });
+    return tweets;
   }
-
   public async CreateTweet(createTweetDto: createTweetDto) {
     // Find user with given userId from user table
     const user = await this.userService.findUserById(createTweetDto.userId);
