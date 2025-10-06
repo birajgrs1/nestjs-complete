@@ -18,6 +18,12 @@ export class HashtagController {
     return this.hashtagService.createHashtagDto(createHashtagDto);
   }
 
+  // @Delete(':id')
+  // public deleteHashtag(@Param('id', ParseIntPipe) id: number) {
+  //   return this.hashtagService.deleteHashtag(id);
+  // }
+
+  // soft delete
   @Delete(':id')
   public deleteHashtag(@Param('id', ParseIntPipe) id: number) {
     return this.hashtagService.deleteHashtag(id);

@@ -22,8 +22,14 @@ export class HashtagService {
     });
   }
 
+  // public async deleteHashtag(id: number) {
+  //   await this.hashtagRepository.delete(id);
+  //   return { deleted: true, id };
+  // }
+
+  // delete a hashtag (soft delete)
   public async deleteHashtag(id: number) {
-    await this.hashtagRepository.delete(id);
+    await this.hashtagRepository.softDelete(id);
     return { deleted: true, id };
   }
 }
