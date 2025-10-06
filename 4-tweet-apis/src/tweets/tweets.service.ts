@@ -4,6 +4,7 @@ import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { Tweet } from './tweet.entity';
 import { createTweetDto } from './dtos/create-tweet.dto';
+import { updateTweetDto } from './dtos/update-tweet.dto';
 import { HashtagService } from 'src/hashtag/hashtag.service';
 
 @Injectable()
@@ -52,5 +53,47 @@ export class TweetsService {
 
     this.logger.log(`Creating tweet for user ${createTweetDto.userId}`);
     return await this.tweetRepository.save(tweet);
+  }
+
+  // Update an existing tweets
+  public async updateTweet(updateTweetDto: updateTweetDto) {
+    //Find the tweet
+    const tweet = await this.tweetRepository.findOne({
+      where: { id: updateTweetDto.id },
+      relations: { user: true, hashtags: true }, // Eager loading of user and hashtags
+    });
+    if (!tweet) {
+      this.logger.error(`Tweet with ID ${updateTweetDto.id} not found.`);
+      throw new NotFoundException('Tweet not found');
+    }
+
+    // Find and update hashtags only if provided
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const incomingHashtags = updateTweetDto.hashtags;
+    if (Array.isArray(incomingHashtags) && incomingHashtags.length > 0) {
+      const hashtags = await this.hashtagService.findHashtags(incomingHashtags);
+      tweet.hashtags = hashtags;
+    }
+
+    //Update the tweet
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const text = updateTweetDto.text;
+    if (typeof text === 'string' && text.trim() !== '') {
+      tweet.text = text;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const image = updateTweetDto.image;
+    if (typeof image === 'string' && image.trim() !== '') {
+      tweet.image = image;
+    }
+
+    this.logger.log(`Updating tweet with ID ${updateTweetDto.id}`);
+    return await this.tweetRepository.save(tweet);
+  }
+
+  // Delete a tweet
+  public async deleteTweet(id: number) {
+    this.logger.log(`Deleting tweet with ID ${id}`);
+    return await this.tweetRepository.delete(id);
   }
 }

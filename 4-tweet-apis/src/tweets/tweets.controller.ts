@@ -6,9 +6,12 @@ import {
   ParseIntPipe,
   Body,
   Post,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { TweetsService } from './tweets.service';
 import { createTweetDto } from './dtos/create-tweet.dto';
+import { updateTweetDto } from './dtos/update-tweet.dto';
 
 @Controller('tweets')
 export class TweetsController {
@@ -36,5 +39,15 @@ export class TweetsController {
   @Post()
   public createTweet(@Body() tweet: createTweetDto) {
     return this.tweetsService.CreateTweet(tweet);
+  }
+
+  @Patch()
+  public updateTweet(@Body() tweet: updateTweetDto) {
+    return this.tweetsService.updateTweet(tweet);
+  }
+
+  @Delete()
+  public deleteTweet(@Param('id', ParseIntPipe) id: number) {
+    return this.tweetsService.deleteTweet(id);
   }
 }
