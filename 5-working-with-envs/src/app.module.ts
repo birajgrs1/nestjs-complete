@@ -6,10 +6,9 @@ import { UsersModule } from './users/users.module';
 import { TweetsModule } from './tweets/tweets.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-// import { User } from './users/users.entity';
 import { ProfilesModule } from './profiles/profiles.module';
 import { HashtagModule } from './hashtag/hashtag.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -23,22 +22,32 @@ import { ConfigModule } from '@nestjs/config';
     }),
 
     // Asynchronous configuration
-
     TypeOrmModule.forRootAsync({
-      imports: [],
-      inject: [],
-      useFactory: () => ({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: 'localhost',
-        port: 5432,
-        username: 'postgres',
-        password: 'birajgrs@1',
-        database: 'nestjs',
+
+        // Reading With process.env
+        // host: process.env.DB_HOST,
+        // port: parseInt(process.env.DB_PORT ?? '5432', 10),
+        // username: process.env.DB_USERNAME,
+        // password: process.env.DB_PASSWORD,
+        // database: process.env.DB_NAME,
+
+        // Reading With ConfigService
+        host: configService.get('DB_HOST'),
+        port: parseInt(configService.get('DB_PORT') ?? '5432', 10),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_NAME'),
+
         autoLoadEntities: true,
         synchronize: true,
         // entities: [User],
       }),
     }),
+
     ProfilesModule,
     HashtagModule,
   ],
