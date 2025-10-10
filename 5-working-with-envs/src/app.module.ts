@@ -10,7 +10,7 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { HashtagModule } from './hashtag/hashtag.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-const ENV = process.env.NODE_ENV;
+const ENV = process.env.ENV_MODE;
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ const ENV = process.env.NODE_ENV;
     ConfigModule.forRoot({
       isGlobal: true, // Make the config module available throughout the entire application
       // envFilePath: '.env',
-      envFilePath: [`.env.${ENV}.local`, `.env.${ENV}`],
+      envFilePath: !ENV ? '.env' : `.env.${ENV}`,
     }),
 
     // Asynchronous configuration
@@ -39,11 +39,11 @@ const ENV = process.env.NODE_ENV;
         // database: process.env.DB_NAME,
 
         // Reading With ConfigService
-        host: configService.get('DB_HOST'),
-        port: parseInt(configService.get('DB_PORT') ?? '5432', 10),
-        username: configService.get('DB_USERNAME'),
-        password: configService.get('DB_PASSWORD'),
-        database: configService.get('DB_NAME'),
+        host: configService.get<string>('DB_HOST') || 'localhost',
+        port: parseInt(configService.get<string>('DB_PORT') || '5432', 10),
+        username: configService.get<string>('DB_USERNAME') || 'postgres',
+        password: String(configService.get<string>('DB_PASSWORD') || ''),
+        database: configService.get<string>('DB_NAME') || 'nestjs',
 
         autoLoadEntities: true,
         synchronize: true,
