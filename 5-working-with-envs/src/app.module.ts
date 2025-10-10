@@ -10,6 +10,8 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { HashtagModule } from './hashtag/hashtag.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+const ENV = process.env.NODE_ENV;
+
 @Module({
   imports: [
     UsersModule,
@@ -18,7 +20,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
     ConfigModule.forRoot({
       isGlobal: true, // Make the config module available throughout the entire application
-      envFilePath: '.env',
+      // envFilePath: '.env',
+      envFilePath: [`.env.${ENV}.local`, `.env.${ENV}`],
     }),
 
     // Asynchronous configuration
