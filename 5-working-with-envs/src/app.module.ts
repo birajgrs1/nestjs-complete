@@ -9,6 +9,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProfilesModule } from './profiles/profiles.module';
 import { HashtagModule } from './hashtag/hashtag.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import appConfig from './config/app.config';
+import databaseConfig from './config/database.config';
 
 const ENV = process.env.ENV_MODE;
 
@@ -22,6 +24,7 @@ const ENV = process.env.ENV_MODE;
       isGlobal: true, // Make the config module available throughout the entire application
       // envFilePath: '.env',
       envFilePath: !ENV ? '.env' : `.env.${ENV}`,
+      load: [appConfig, databaseConfig],
     }),
 
     // Asynchronous configuration
@@ -39,14 +42,15 @@ const ENV = process.env.ENV_MODE;
         // database: process.env.DB_NAME,
 
         // Reading With ConfigService
-        host: configService.get<string>('DB_HOST') || 'localhost',
-        port: parseInt(configService.get<string>('DB_PORT') || '5432', 10),
-        username: configService.get<string>('DB_USERNAME') || 'postgres',
-        password: String(configService.get<string>('DB_PASSWORD') || ''),
-        database: configService.get<string>('DB_NAME') || 'nestjs',
+        host: configService.get<string>('database.host') || 'localhost',
+        port: configService.get<number>('database.port') || 5432,
+        username: configService.get<string>('database.username') || 'postgres',
+        password: String(configService.get<string>('database.password') || ''),
+        database: configService.get<string>('database.database') || 'nestjs',
 
-        autoLoadEntities: true,
-        synchronize: true,
+        autoLoadEntities:
+          configService.get<boolean>('database.autoLoadEntities') ?? true,
+        synchronize: configService.get<boolean>('database.synchronize') ?? true,
         // entities: [User],
       }),
     }),
