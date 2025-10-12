@@ -12,6 +12,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import authConfig from './auth/config/auth.config';
+import { envValidationSchema } from './config/env.validation';
 
 const ENV = process.env.ENV_MODE;
 
@@ -26,6 +27,7 @@ const ENV = process.env.ENV_MODE;
       // envFilePath: '.env',
       envFilePath: !ENV ? '.env' : `.env.${ENV}`,
       load: [appConfig, databaseConfig, authConfig],
+      validationSchema: envValidationSchema,
     }),
 
     // Asynchronous configuration
