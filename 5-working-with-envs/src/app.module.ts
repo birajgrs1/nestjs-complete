@@ -11,6 +11,7 @@ import { HashtagModule } from './hashtag/hashtag.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
+import authConfig from './auth/config/auth.config';
 
 const ENV = process.env.ENV_MODE;
 
@@ -24,7 +25,7 @@ const ENV = process.env.ENV_MODE;
       isGlobal: true, // Make the config module available throughout the entire application
       // envFilePath: '.env',
       envFilePath: !ENV ? '.env' : `.env.${ENV}`,
-      load: [appConfig, databaseConfig],
+      load: [appConfig, databaseConfig, authConfig],
     }),
 
     // Asynchronous configuration
