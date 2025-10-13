@@ -36,8 +36,11 @@ export class UsersService {
         },
       });
     } catch (error) {
-      Logger.error('Database request timed out', error);
-      throw new RequestTimeoutException('Database request timed out');
+      Logger.error('Error fetching users', error);
+      throw new NotFoundException({
+        description: 'Error fetching users',
+        'An error occurred while fetching users. Please try again later.': true,
+      });
     }
   }
 
@@ -47,60 +50,36 @@ export class UsersService {
       where: { email },
     });
   }
-
   // Create a new user
-  // async createUser(userDto: CreateUserDto): Promise<User> {
-  //   // Check if user already exists
-  //   const existingUser = await this.findByEmail(userDto.email);
-  //   if (existingUser) {
-  //     throw new ConflictException('User already exists');
-  //   }
-
-  //   const newUser = this.userRepository.create(userDto as DeepPartial<User>);
-  //   return await this.userRepository.save(newUser);
-  // }
-
   public async createUser(userDto: CreateUserDto): Promise<User> {
-    // Create a profile and save
-    // let profile = this.profileRepository.create(
-    //   userDto.profile as DeepPartial<Profile>,
-    // );
-    // profile = await this.profileRepository.save(profile);
-
-    // Create a user object
-    // const user = this.userRepository.create(userDto as DeepPartial<User>);
-
-    // Set the profile
-    // user.profile = profile;
-
-    // Save the user object and return the full user with the profile populated
-    // return await this.userRepository.save(user);
-
     // Using cascaded (no need manually)
-    userDto.profile = userDto.profile ?? {};
-    const user = this.userRepository.create(userDto as DeepPartial<User>);
-    return await this.userRepository.save(user);
+    try {
+      userDto.profile = userDto.profile ?? {};
+      const user = this.userRepository.create(userDto as DeepPartial<User>);
+      return await this.userRepository.save(user);
+    } catch (error) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as { code?: unknown }).code === 'ER_DUP_ENTRY'
+      ) {
+        throw new NotFoundException(
+          `User with email ${userDto.email} already exists`,
+        );
+      }
+      Logger.error('Error creating user', error);
+      throw new RequestTimeoutException({
+        description: 'Error creating user',
+        'An error occurred while creating the user. Please try again later.': true,
+      });
+    }
   }
 
   // delete a user
   public async deleteUser(id: number): Promise<{ deleted: boolean }> {
-    // find the user with given id
-    // const user = await this.userRepository.findOne({
-    //   where: { id },
-    //   relations: ['profile'],
-    // });
-
-    // if (!user) {
-    //   throw new NotFoundException(`User with id ${id} not found`);
-    // }
-
     //delete the user
     await this.userRepository.delete(id);
-
-    //delete  profile
-    // if (user.profile && user.profile.id) {
-    //   await this.profileRepository.delete(user.profile.id);
-    // }
 
     //send a response
     return { deleted: true };
