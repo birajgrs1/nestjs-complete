@@ -1,6 +1,8 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
+  RequestTimeoutException,
   // , NotFoundException
 } from '@nestjs/common';
 import { Repository, DeepPartial } from 'typeorm';
@@ -21,12 +23,22 @@ export class UsersService {
 
   // Get all users
   async getAllUsers(): Promise<User[]> {
-    return this.userRepository.find({
-      relations: {
-        //apply eager loading
-        profile: true,
-      },
-    });
+    // return this.userRepository.find({
+    //   relations: {
+    //     //apply eager loading
+    //     profile: true,
+    //   },
+    // });
+    try {
+      return await this.userRepository.find({
+        relations: {
+          profile: true,
+        },
+      });
+    } catch (error) {
+      Logger.error('Database request timed out', error);
+      throw new RequestTimeoutException('Database request timed out');
+    }
   }
 
   // Find a user by email
