@@ -46,6 +46,7 @@ const ENV = process.env.ENV_MODE;
         autoLoadEntities:
           configService.get<boolean>('database.autoLoadEntities') ?? true,
         synchronize: configService.get<boolean>('database.synchronize') ?? true,
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
         // entities: [User],
       }),
     }),

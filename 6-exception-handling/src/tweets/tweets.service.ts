@@ -20,7 +20,8 @@ export class TweetsService {
 
   // Get all tweets for a specific user
   public async getTweets(userId: number) {
-    if (userId === 0) {
+    const User = await this.userService.findUserById(userId);
+    if (!User) {
       this.logger.error(`User with ID ${userId} not found.`);
       throw new NotFoundException('User not found');
     }
@@ -72,7 +73,6 @@ export class TweetsService {
     }
 
     // Find and update hashtags only if provided
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const incomingHashtags = updateTweetDto.hashtags;
     if (Array.isArray(incomingHashtags) && incomingHashtags.length > 0) {
       const hashtags = await this.hashtagService.findHashtags(incomingHashtags);
@@ -80,12 +80,10 @@ export class TweetsService {
     }
 
     //Update the tweet
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const text = updateTweetDto.text;
     if (typeof text === 'string' && text.trim() !== '') {
       tweet.text = text;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const image = updateTweetDto.image;
     if (typeof image === 'string' && image.trim() !== '') {
       tweet.image = image;
