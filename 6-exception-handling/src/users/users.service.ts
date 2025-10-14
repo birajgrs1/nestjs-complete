@@ -2,8 +2,10 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  RequestTimeoutException,
-  // , NotFoundException
+  // RequestTimeoutException,
+  ConflictException,
+  BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { Repository, DeepPartial } from 'typeorm';
 import { User } from './users.entity';
@@ -13,22 +15,18 @@ import { Profile } from 'src/profiles/profile.entity';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
 
     @InjectRepository(Profile)
-    private profileRepository: Repository<Profile>,
+    private readonly profileRepository: Repository<Profile>,
   ) {}
 
   // Get all users
   async getAllUsers(): Promise<User[]> {
-    // return this.userRepository.find({
-    //   relations: {
-    //     //apply eager loading
-    //     profile: true,
-    //   },
-    // });
     try {
       return await this.userRepository.find({
         relations: {
@@ -36,10 +34,11 @@ export class UsersService {
         },
       });
     } catch (error) {
-      Logger.error('Error fetching users', error);
+      this.logger.error('Error fetching users', error);
       throw new NotFoundException({
         description: 'Error fetching users',
-        'An error occurred while fetching users. Please try again later.': true,
+        message:
+          'An error occurred while fetching users. Please try again later.',
       });
     }
   }
@@ -50,54 +49,77 @@ export class UsersService {
       where: { email },
     });
   }
-  // Create a new user
-  public async createUser(userDto: CreateUserDto): Promise<User> {
-    // Using cascaded (no need manually)
+
+  // Create a new user with constraint handling
+  async createUser(userDto: CreateUserDto): Promise<User> {
     try {
       userDto.profile = userDto.profile ?? {};
+
       const user = this.userRepository.create(userDto as DeepPartial<User>);
       return await this.userRepository.save(user);
     } catch (error) {
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'code' in error &&
-        (error as { code?: unknown }).code === 'ER_DUP_ENTRY'
-      ) {
-        throw new NotFoundException(
-          `User with email ${userDto.email} already exists`,
+      this.logger.error('Error creating user', error);
+
+      // MySQL
+      const mysqlError = error as {
+        code?: string;
+        errno?: number;
+        message?: string;
+      };
+
+      if (mysqlError.code === 'ER_DUP_ENTRY' && mysqlError.errno === 1062) {
+        throw new ConflictException(
+          `User with email ${userDto.email} already exists.`,
         );
       }
-      Logger.error('Error creating user', error);
-      throw new RequestTimeoutException({
-        description: 'Error creating user',
-        'An error occurred while creating the user. Please try again later.': true,
+
+      // PostgreSQL
+      if (mysqlError.code === '23505') {
+        throw new ConflictException(
+          'Duplicate key value violates unique constraint.',
+        );
+      }
+
+      if (mysqlError.code === '23503') {
+        throw new BadRequestException('Foreign key constraint violation.');
+      }
+
+      if (mysqlError.code === '23502') {
+        throw new BadRequestException(
+          'Null value in column violates not-null constraint.',
+        );
+      }
+
+      // Default fallback
+      throw new InternalServerErrorException({
+        description: 'Unexpected database error',
+        message: mysqlError.message || 'An unknown error occurred.',
       });
     }
   }
 
-  // delete a user
-  public async deleteUser(id: number): Promise<{ deleted: boolean }> {
-    //delete the user
-    await this.userRepository.delete(id);
+  // Delete a user
+  async deleteUser(id: number): Promise<{ deleted: boolean }> {
+    const result = await this.userRepository.delete(id);
 
-    //send a response
+    if (result.affected === 0) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
     return { deleted: true };
-    // return { message: `User with id ${id} and their profile were deleted.` };
   }
 
   // Get user by id
   async findUserById(id: number): Promise<User> {
-    const user = await this.userRepository.findOneBy({
-      id,
-      // relations: {
-      //   //apply eager loading
-      //   profile: true,
-      // },
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: { profile: true },
     });
+
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
+
     return user;
   }
 }
