@@ -23,14 +23,13 @@ export class UsersController {
     return this.usersService.getAllUsers();
   }
 
+  @Get(':id')
+  findUserById(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findUserById(id);
+  }
+
   @Delete(':id')
   deleteUser(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.deleteUser(id);
   }
 }
-/*
-What is Eager Loading?
-Eager loading in TypeOrm means that when you fetch an entity from the database, its 
-related entities (defined in relationships such as @OneToMany, @ManyToMany, etc.) are automatically 
-loaded alongside it - without you having to explicitly specify it in your query.
-*/

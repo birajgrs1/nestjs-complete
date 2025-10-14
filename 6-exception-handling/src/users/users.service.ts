@@ -6,6 +6,7 @@ import {
   ConflictException,
   BadRequestException,
   InternalServerErrorException,
+  HttpStatus,
 } from '@nestjs/common';
 import { Repository, DeepPartial } from 'typeorm';
 import { User } from './users.entity';
@@ -117,7 +118,13 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException({
+        statusCode: HttpStatus.NOT_FOUND,
+        error: 'User Not Found',
+        message: `The user with id ${id} was not found.`,
+        table: 'users',
+        description: `The exception was thrown because the user with id ${id} does not exist in the database.`,
+      });
     }
 
     return user;
