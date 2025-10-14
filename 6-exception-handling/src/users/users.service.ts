@@ -3,7 +3,7 @@ import {
   Logger,
   NotFoundException,
   // RequestTimeoutException,
-  ConflictException,
+  // ConflictException,
   BadRequestException,
   InternalServerErrorException,
   HttpStatus,
@@ -13,6 +13,7 @@ import { User } from './users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { Profile } from 'src/profiles/profile.entity';
+import { UserAlreadyExistsException } from 'src/Custom/user-already-exists.exception';
 
 @Injectable()
 export class UsersService {
@@ -52,6 +53,7 @@ export class UsersService {
   }
 
   // Create a new user with constraint handling
+  // Create a new user with custom exception handling
   async createUser(userDto: CreateUserDto): Promise<User> {
     try {
       userDto.profile = userDto.profile ?? {};
@@ -61,40 +63,41 @@ export class UsersService {
     } catch (error) {
       this.logger.error('Error creating user', error);
 
-      // MySQL
-      const mysqlError = error as {
+      const dbError = error as {
         code?: string;
         errno?: number;
         message?: string;
       };
 
-      if (mysqlError.code === 'ER_DUP_ENTRY' && mysqlError.errno === 1062) {
-        throw new ConflictException(
-          `User with email ${userDto.email} already exists.`,
+      // MySQL: Duplicate entry
+      if (dbError.code === 'ER_DUP_ENTRY' && dbError.errno === 1062) {
+        throw new UserAlreadyExistsException(
+          `A user with the email '${userDto.email}' already exists in the system.`,
         );
       }
 
-      // PostgreSQL
-      if (mysqlError.code === '23505') {
-        throw new ConflictException(
-          'Duplicate key value violates unique constraint.',
+      // PostgreSQL: Unique violation
+      if (dbError.code === '23505') {
+        throw new UserAlreadyExistsException(
+          `A user with the email '${userDto.email}' already exists (PostgreSQL unique constraint).`,
         );
       }
 
-      if (mysqlError.code === '23503') {
+      // PostgreSQL: Foreign key violation
+      if (dbError.code === '23503') {
         throw new BadRequestException('Foreign key constraint violation.');
       }
 
-      if (mysqlError.code === '23502') {
+      // PostgreSQL: Not-null constraint violation
+      if (dbError.code === '23502') {
         throw new BadRequestException(
           'Null value in column violates not-null constraint.',
         );
       }
 
-      // Default fallback
       throw new InternalServerErrorException({
         description: 'Unexpected database error',
-        message: mysqlError.message || 'An unknown error occurred.',
+        message: dbError.message || 'An unknown error occurred.',
       });
     }
   }
