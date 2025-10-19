@@ -60,33 +60,48 @@ const ENV = process.env.ENV_MODE;
 export class AppModule {}
 
 /*
-What is Exception Handling ? 
-- In Nestjs, as in other programming environments, an "exception" represents an error condition 
-that disrupts the normal flow of execution in an application. Exception handling is the process of
-responding to these exceptions in a controlled manner, allowing the application to recover or 
-fail gracefully.
+What is Pagination?
 
-- In NestJS, exception handling is typically done using built-in mechanisms that allow developers 
-to catch and respond to errors that occur during the execution of their code. This is crucial for 
-building robust applications that can handle unexpected situations without crashing.
+The pagination is a technique used to divide  large sets of data into smaller, more manageable chunks or "pages". 
+Instead of loading and displaying all the data at once, which can lead to performance issues and a poor user 
+experience, pagination displays a subset of the data that allows users to navigate through the remaining data using 
+page controls. 
+E.g: "Next", "Previous", or specific page numbers.
 
-- NestJS provides several ways to handle exceptions, including:
+Why use Pagination?
 
-1. Built-in Exception Filters: NestJS comes with a set of built-in exception filters that can be 
-used to catch and handle common types of exceptions, such as HTTP exceptions. For example, the 
-`HttpException` class can be used to throw HTTP-specific errors.
+1. Improved Performance: Loading and rendering a large dataset can be resource-intensive and slow down the application. 
+By fetching and displaying only a portion of the data at a time, pagination helps reduce the load on the server and 
+improves response times.
 
-2. Custom Exception Filters: Developers can create their own custom exception filters by implementing 
-the `ExceptionFilter` interface. This allows for more granular control over how specific exceptions 
-are handled.
+2. Enhanced User Experience: Presenting users with a massive amount of data all at once can be overwhelming and 
+difficult to navigate. Pagination allows users to focus on smaller, more relevant subsets of data, making it easier 
+to find what they are looking for.
 
-3. Global Exception Filters: Exception filters can be applied globally to catch all unhandled exceptions 
-in the application. This
-  is useful for logging errors or returning a standard error response format.
-4. Try-Catch Blocks: In addition to using exception filters, developers can also use traditional
-  try-catch blocks within their service methods or controllers to handle exceptions at a more
-  localized level.
+3. Reduced Bandwidth Usage: Pagination helps minimize the amount of data transferred between the server and client, 
+which is especially important for users with limited bandwidth or slower internet connections.
 
-5. Middleware: Exception handling can also be implemented in middleware to catch errors that occur 
-before reaching the route handlers.
+4. Scalability: As applications grow and datasets become larger, pagination provides a scalable solution for managing 
+and displaying data efficiently without compromising performance or user experience.
+
+Types of Pagination:
+
+1. Offset-based Pagination: This method uses an offset value to determine where to start fetching data from. 
+For example, if you want to fetch 10 items per page, the first page would have an offset of 0, the second page 
+would have an offset of 10, and so on. This approach is simple to implement but can lead to performance issues 
+with large datasets.
+
+2. Cursor-based Pagination: Instead of using an offset, cursor-based pagination relies on a unique identifier 
+(such as a timestamp or ID) to mark the last item retrieved in the previous page. The next page fetches items 
+that come after this identifier. This method is more efficient for large datasets and provides better consistency 
+when data is frequently updated.
+
+3. Keyset Pagination: Similar to cursor-based pagination, keyset pagination uses a set of keys (e.g., primary keys) 
+to determine the starting point for the next page. It is particularly useful for ordered datasets and can
+  provide better performance than offset-based pagination.
+
+4. Infinite Scrolling: Instead of traditional pagination with page numbers, infinite scrolling loads more data
+as the user scrolls down the page. This approach provides a seamless user experience but can be challenging 
+to implement and may lead to performance issues if not managed properly.
+
 */
