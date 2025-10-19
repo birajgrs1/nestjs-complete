@@ -6,7 +6,7 @@ import { Tweet } from './tweet.entity';
 import { createTweetDto } from './dtos/create-tweet.dto';
 import { updateTweetDto } from './dtos/update-tweet.dto';
 import { HashtagService } from 'src/hashtag/hashtag.service';
-import { PaginationDto } from 'src/common/pagination/dto/pagination-query.dto';
+import { GetTweetQueryDto } from './dtos/get-tweet-query.dto';
 
 @Injectable()
 export class TweetsService {
@@ -19,8 +19,8 @@ export class TweetsService {
     private readonly hashtagService: HashtagService,
   ) {}
 
-  // Get all tweets for a specific user
-  public async getTweets(userId?: number, paginationDto?: PaginationDto) {
+  // Get all tweets for a specific user (with pagination and optional date filters)
+  public async getTweets(userId?: number, query?: GetTweetQueryDto) {
     const queryBuilder = this.tweetRepository
       .createQueryBuilder('tweet')
       .leftJoinAndSelect('tweet.user', 'user')
@@ -35,11 +35,23 @@ export class TweetsService {
       queryBuilder.where('user.id = :userId', { userId });
     }
 
-    if (paginationDto) {
-      const { limit = 10, page = 1 } = paginationDto;
-      const skip = (page - 1) * limit;
-      queryBuilder.skip(skip).take(limit);
+    // Date filters (startDate and endDate)
+    if (query?.startDate) {
+      queryBuilder.andWhere('tweet.createdAt >= :startDate', {
+        startDate: query.startDate,
+      });
     }
+    if (query?.endDate) {
+      queryBuilder.andWhere('tweet.createdAt <= :endDate', {
+        endDate: query.endDate,
+      });
+    }
+
+    // Pagination
+    const limit = query?.limit ?? 10;
+    const page = query?.page ?? 1;
+    const skip = (page - 1) * limit;
+    queryBuilder.skip(skip).take(limit);
 
     const tweets = await queryBuilder.getMany();
     return tweets;

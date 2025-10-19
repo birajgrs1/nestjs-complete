@@ -13,7 +13,7 @@ import {
 import { TweetsService } from './tweets.service';
 import { createTweetDto } from './dtos/create-tweet.dto';
 import { updateTweetDto } from './dtos/update-tweet.dto';
-import { PaginationDto } from 'src/common/pagination/dto/pagination-query.dto';
+import { GetTweetQueryDto } from './dtos/get-tweet-query.dto';
 
 @Controller('tweets')
 export class TweetsController {
@@ -33,21 +33,21 @@ export class TweetsController {
   //   return this.tweetsService.getTweets(userId);
   // }
 
-  // http://localhost:3000/tweets?limit=10&page=2
+  // http://localhost:3000/tweets?limit=10&page=2&startDate=2025-01-01&endDate=2025-10-01
   @Get()
-  public getTweets(@Query() paginationQuery?: PaginationDto) {
+  public getTweets(@Query() query?: GetTweetQueryDto) {
     this.logger.log(`Fetching tweets for all users`);
-    return this.tweetsService.getTweets(undefined, paginationQuery);
+    return this.tweetsService.getTweets(undefined, query);
   }
 
-  // http://localhost:3000/tweets/1?limit=10&page=2
+  // http://localhost:3000/tweets/1?limit=10&page=2&startDate=2025-01-01&endDate=2025-10-01
   @Get(':userId')
   public getTweetsByUser(
     @Param('userId', ParseIntPipe) userId: number,
-    @Query() paginationQuery?: PaginationDto,
+    @Query() query?: GetTweetQueryDto,
   ) {
     this.logger.log(`Fetching tweets for user ID: ${userId}`);
-    return this.tweetsService.getTweets(userId, paginationQuery);
+    return this.tweetsService.getTweets(userId, query);
   }
 
   @Post()
