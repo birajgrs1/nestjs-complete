@@ -8,10 +8,12 @@ import {
   Post,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { TweetsService } from './tweets.service';
 import { createTweetDto } from './dtos/create-tweet.dto';
 import { updateTweetDto } from './dtos/update-tweet.dto';
+import { PaginationDto } from 'src/common/pagination/dto/pagination-query.dto';
 
 @Controller('tweets')
 export class TweetsController {
@@ -31,9 +33,21 @@ export class TweetsController {
   //   return this.tweetsService.getTweets(userId);
   // }
 
+  // http://localhost:3000/tweets?limit=10&page=2
+  @Get()
+  public getTweets(@Query() paginationQuery?: PaginationDto) {
+    this.logger.log(`Fetching tweets for all users`);
+    return this.tweetsService.getTweets(undefined, paginationQuery);
+  }
+
+  // http://localhost:3000/tweets/1?limit=10&page=2
   @Get(':userId')
-  public getTweets(@Param('userId', ParseIntPipe) userId: number) {
-    return this.tweetsService.getTweets(userId);
+  public getTweetsByUser(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query() paginationQuery?: PaginationDto,
+  ) {
+    this.logger.log(`Fetching tweets for user ID: ${userId}`);
+    return this.tweetsService.getTweets(userId, paginationQuery);
   }
 
   @Post()
@@ -46,7 +60,7 @@ export class TweetsController {
     return this.tweetsService.updateTweet(tweet);
   }
 
-  @Delete()
+  @Delete(':id')
   public deleteTweet(@Param('id', ParseIntPipe) id: number) {
     return this.tweetsService.deleteTweet(id);
   }

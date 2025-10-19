@@ -6,6 +6,7 @@ import { Tweet } from './tweet.entity';
 import { createTweetDto } from './dtos/create-tweet.dto';
 import { updateTweetDto } from './dtos/update-tweet.dto';
 import { HashtagService } from 'src/hashtag/hashtag.service';
+import { PaginationDto } from 'src/common/pagination/dto/pagination-query.dto';
 
 @Injectable()
 export class TweetsService {
@@ -19,16 +20,28 @@ export class TweetsService {
   ) {}
 
   // Get all tweets for a specific user
-  public async getTweets(userId: number) {
-    const User = await this.userService.findUserById(userId);
-    if (!User) {
-      this.logger.error(`User with ID ${userId} not found.`);
-      throw new NotFoundException('User not found');
+  public async getTweets(userId?: number, paginationDto?: PaginationDto) {
+    const queryBuilder = this.tweetRepository
+      .createQueryBuilder('tweet')
+      .leftJoinAndSelect('tweet.user', 'user')
+      .leftJoinAndSelect('tweet.hashtags', 'hashtags');
+
+    if (userId !== undefined) {
+      const user = await this.userService.findUserById(userId);
+      if (!user) {
+        this.logger.error(`User with ID ${userId} not found.`);
+        throw new NotFoundException('User not found');
+      }
+      queryBuilder.where('user.id = :userId', { userId });
     }
-    const tweets = await this.tweetRepository.find({
-      where: { user: { id: userId } },
-      relations: { user: true, hashtags: true }, // Eager loading of user and hashtags
-    });
+
+    if (paginationDto) {
+      const { limit = 10, page = 1 } = paginationDto;
+      const skip = (page - 1) * limit;
+      queryBuilder.skip(skip).take(limit);
+    }
+
+    const tweets = await queryBuilder.getMany();
     return tweets;
   }
 
