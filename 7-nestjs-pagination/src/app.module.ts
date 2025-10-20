@@ -13,6 +13,7 @@ import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import authConfig from './auth/config/auth.config';
 import { envValidationSchema } from './config/env.validation';
+import { PaginationModule } from './common/pagination/pagination.module';
 
 const ENV = process.env.ENV_MODE;
 
@@ -53,6 +54,7 @@ const ENV = process.env.ENV_MODE;
 
     ProfilesModule,
     HashtagModule,
+    PaginationModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService],
