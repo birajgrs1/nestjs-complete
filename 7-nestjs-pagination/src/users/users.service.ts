@@ -12,8 +12,10 @@ import { Repository, DeepPartial } from 'typeorm';
 import { User } from './users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { PaginationDto } from 'src/common/pagination/dto/pagination-query.dto';
 import { Profile } from 'src/profiles/profile.entity';
 import { UserAlreadyExistsException } from 'src/Custom/user-already-exists.exception';
+import { PaginationProvider } from 'src/common/pagination/pagination.provider';
 
 @Injectable()
 export class UsersService {
@@ -25,15 +27,42 @@ export class UsersService {
 
     @InjectRepository(Profile)
     private readonly profileRepository: Repository<Profile>,
+
+    private readonly paginationProvider: PaginationProvider,
   ) {}
 
   // Get all users
-  async getAllUsers(): Promise<User[]> {
+
+  async getAllUsers(paginationQuery?: PaginationDto): Promise<any> {
     try {
-      return await this.userRepository.find({
+      if (
+        !paginationQuery ||
+        (!paginationQuery.page && !paginationQuery.limit)
+      ) {
+        return await this.userRepository.find({
+          relations: {
+            profile: true,
+          },
+        });
+      }
+
+      // pagination logic
+      const { page = 1, limit = 10 } = paginationQuery;
+
+      const [data, totalItems] = await this.userRepository.findAndCount({
         relations: {
           profile: true,
         },
+        skip: (page - 1) * limit,
+        take: limit,
+      });
+
+      // Use pagination provider to build response
+      return this.paginationProvider.buildPaginationResponse({
+        data,
+        totalItems,
+        page,
+        limit,
       });
     } catch (error) {
       this.logger.error('Error fetching users', error);
