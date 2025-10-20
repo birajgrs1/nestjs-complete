@@ -7,6 +7,7 @@ import { createTweetDto } from './dtos/create-tweet.dto';
 import { updateTweetDto } from './dtos/update-tweet.dto';
 import { HashtagService } from 'src/hashtag/hashtag.service';
 import { GetTweetQueryDto } from './dtos/get-tweet-query.dto';
+import { PaginationProvider } from 'src/common/pagination/pagination.provider';
 
 @Injectable()
 export class TweetsService {
@@ -17,9 +18,47 @@ export class TweetsService {
     @InjectRepository(Tweet)
     private readonly tweetRepository: Repository<Tweet>,
     private readonly hashtagService: HashtagService,
+    private readonly paginationProvider: PaginationProvider,
   ) {}
 
   // Get all tweets for a specific user (with pagination and optional date filters)
+  // public async getTweets(userId?: number, query?: GetTweetQueryDto) {
+  //   const queryBuilder = this.tweetRepository
+  //     .createQueryBuilder('tweet')
+  //     .leftJoinAndSelect('tweet.user', 'user')
+  //     .leftJoinAndSelect('tweet.hashtags', 'hashtags');
+
+  //   if (userId !== undefined) {
+  //     const user = await this.userService.findUserById(userId);
+  //     if (!user) {
+  //       this.logger.error(`User with ID ${userId} not found.`);
+  //       throw new NotFoundException('User not found');
+  //     }
+  //     queryBuilder.where('user.id = :userId', { userId });
+  //   }
+
+  //   // Date filters (startDate and endDate)
+  //   if (query?.startDate) {
+  //     queryBuilder.andWhere('tweet.createdAt >= :startDate', {
+  //       startDate: query.startDate,
+  //     });
+  //   }
+  //   if (query?.endDate) {
+  //     queryBuilder.andWhere('tweet.createdAt <= :endDate', {
+  //       endDate: query.endDate,
+  //     });
+  //   }
+
+  //   // Pagination
+  //   const limit = query?.limit ?? 10;
+  //   const page = query?.page ?? 1;
+  //   const skip = (page - 1) * limit;
+  //   queryBuilder.skip(skip).take(limit);
+
+  //   const tweets = await queryBuilder.getMany();
+  //   return tweets;
+  // }
+
   public async getTweets(userId?: number, query?: GetTweetQueryDto) {
     const queryBuilder = this.tweetRepository
       .createQueryBuilder('tweet')
@@ -35,7 +74,6 @@ export class TweetsService {
       queryBuilder.where('user.id = :userId', { userId });
     }
 
-    // Date filters (startDate and endDate)
     if (query?.startDate) {
       queryBuilder.andWhere('tweet.createdAt >= :startDate', {
         startDate: query.startDate,
@@ -53,8 +91,14 @@ export class TweetsService {
     const skip = (page - 1) * limit;
     queryBuilder.skip(skip).take(limit);
 
-    const tweets = await queryBuilder.getMany();
-    return tweets;
+    const [data, totalItems] = await queryBuilder.getManyAndCount();
+
+    return this.paginationProvider.buildPaginationResponse({
+      data,
+      totalItems,
+      page,
+      limit,
+    });
   }
 
   // Create a new tweet

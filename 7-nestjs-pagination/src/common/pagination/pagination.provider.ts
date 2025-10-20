@@ -32,6 +32,20 @@ export class PaginationProvider {
       take: limit,
     });
 
+    return this.buildPaginationResponse({ data, totalItems, page, limit });
+  }
+
+  public buildPaginationResponse<T>({
+    data,
+    totalItems,
+    page,
+    limit,
+  }: {
+    data: T[];
+    totalItems: number;
+    page: number;
+    limit: number;
+  }) {
     const totalPages = Math.ceil(totalItems / limit);
     const itemCount = data.length;
 
