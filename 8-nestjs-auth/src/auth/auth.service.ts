@@ -1,20 +1,19 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { Logger } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import authConfig from './config/auth.config';
+import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
     private readonly logger: Logger,
     @Inject(authConfig.KEY)
     private readonly authConfiguration: ConfigType<typeof authConfig>,
   ) {}
 
-  isAuthenticated: boolean = false;
+  isAuthenticated = false;
 
   login(email: string, password: string) {
     this.logger.log(
@@ -24,5 +23,9 @@ export class AuthService {
       `AuthService: Shared secret is: ${this.authConfiguration.sharedSecret}`,
     );
     return 'Not implemented yet';
+  }
+
+  async signup(createUserDto: CreateUserDto) {
+    return this.usersService.createUser(createUserDto);
   }
 }

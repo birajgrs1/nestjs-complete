@@ -1,4 +1,7 @@
-import { forwardRef, Module } from '@nestjs/common';
+import {
+  // forwardRef,
+  Module,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { ConfigModule } from '@nestjs/config';
@@ -15,7 +18,8 @@ import { Logger } from '@nestjs/common'; // Import Logger
   exports: [AuthService],
   imports: [
     ConfigModule.forFeature(authConfig), // Partial registration of config
-    forwardRef(() => UsersModule), // Forward reference for circular dependencies
+    // forwardRef(() => UsersModule  // Forward reference for circular dependencies
+    UsersModule,
   ],
 })
 export class AuthModule {}
